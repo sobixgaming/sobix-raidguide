@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import { Shield, Sword, HeartPulse, ExternalLink, CheckCircle2, CircleDot, Map, BookOpen } from 'lucide-react';
+import { Shield, Sword, HeartPulse, ExternalLink, CheckCircle2, CircleDot, BookOpen, Skull, TriangleAlert } from 'lucide-react';
 import './styles.css';
 import './visual-polish.css';
 
@@ -26,8 +26,6 @@ const bosses = [
     abilities:[['Soulcoil Well','Zentrale Gefahrenzone.'],['Soulcoil Rite','Raid-Schaden und Energiegewinn, wenn der Brunnen gespeist wird.'],['Restless Amani','Adds auf dem Weg zum Brunnen.'],['Ritual of Awakening','Intermission bei 50 %.'],['Uncoiling','Finale Phase mit steigendem Druck.'],['Ritual Burn','Heroisch/Mythisch: wiederholte Treffer werden gefährlicher.']],
     roles:{tank:['Boss und Adds vom Brunnen weg halten.','Add-Wege niemals durch die Mitte führen.'],healer:['Tode in Brunnennähe verhindern.','CDs für Intermission und Uncoiling staffeln.'],dps:['Adds vor Boss-DPS priorisieren, wenn sie den Brunnen bedrohen.','Echoes sofort fokussieren.']},
     difficulty:{heroic:'Ritual Burn verschärft wiederholte Soulcoil-Rite-Auslösungen.',mythic:'Feste Add-, Interrupt- und Positionszuweisungen sind entscheidend.'},
-    arena:{boss:[50,24],tank:[50,15],melee:[50,34],ranged:[76,68],danger:[50,54],label:'Soulcoil Well',path:[[78,78],[72,64],[66,52],[62,40]]},
-    positioning:['Tank/Boss oben halten; Mitte für den Brunnen frei lassen.','Melee hinter/seitlich am Boss.','Ranged/Heiler breit unten/rechts verteilen.','Adds seitlich abfangen.'],
     sources:[['Blizzard',blizzard],['Wowhead',wowhead('nekzali-the-soulcoiler')],['Warcraft Logs',warcraftLogs]]
   },
   {
@@ -38,8 +36,6 @@ const bosses = [
     abilities:[["Ula'tek's Dominance",'Nahe Sentinels erleiden 99 % weniger Schaden.'],['Venom Coagulation','Erzeugt einen gefährlichen Slime.'],['Contaminate','Hoher wiederkehrender Raid-Schaden.'],['Blighted Blood','Dispellbarer Debuff.'],['Vitriolic Stasis','Intermission bei 100 Energie.'],['Helical Toxins','Anwendungen nach festem Plan kombinieren.']],
     roles:{tank:['Je einen Sentinel an einer Außenkante halten.','Nur zur Stasis zusammenführen.'],healer:['Heiler fest auf beide Gruppen verteilen.','Blighted Blood gezielt dispellen.'],dps:['Eigene Seite halten.','Venom Coagulation sofort priorisieren.']},
     difficulty:{heroic:'Zusätzliche Venom-Effekte erhöhen Raum- und Bewegungsdruck.',mythic:'Protovenom-Interaktionen verlangen feste Paarungen.'},
-    arena:{boss:[24,34],boss2:[76,34],tank:[15,34],melee:[35,36],ranged:[50,76],danger:[50,50],label:'Mitte nur für Stasis',path:[[30,72],[42,58],[50,50],[58,58],[70,72]]},
-    positioning:['Raid auf linke/rechte Arenahälfte teilen.','Bosse maximal weit auseinander halten.','Mitte für Stasis freihalten.','Nach Stasis sofort wieder auseinander.'],
     sources:[['Wowhead',wowhead('entombed-sentinels')],['Warcraft Logs',warcraftLogs]]
   },
   {
@@ -50,8 +46,6 @@ const bosses = [
     abilities:[['Imbibe','Nutzt die zwei nächstgelegenen Fountains.'],['Infusion','Verstärkt das aktive Venom-Paket.'],['Living Venom','Add, das die Mitte nicht erreichen darf.'],['Malignant Burst','Fehlerfolge, wenn ein Venom die Mitte erreicht.']],
     roles:{tank:['Boss vor 100 Energie an den geplanten Sektor bewegen.'],healer:['CDs an Imbibe-Fenster koppeln.'],dps:['Living Venoms sofort priorisieren.']},
     difficulty:{heroic:'Mehr Überlappungen bestrafen schlechte Fountain-Rotationen.',mythic:'Fountain-Reihenfolge und Add-Zuweisungen vor Pull festlegen.'},
-    arena:{boss:[50,48],tank:[50,39],melee:[50,58],ranged:[50,78],danger:[50,18],label:'Malignant Cavity',path:[[50,75],[36,62],[30,42],[44,30],[62,36],[70,52]]},
-    positioning:['Arena in drei Fountain-Sektoren denken.','Boss vor 100 Energie umstellen.','Ranged zentral genug für Add-Wechsel halten.','Venoms zwischen Spawn und Mitte abfangen.'],
     sources:[['Wowhead',wowhead('vashnik-the-malignant')],['Warcraft Logs',warcraftLogs]]
   },
   {
@@ -62,8 +56,6 @@ const bosses = [
     abilities:[['Dark Whispers','Mor’zahi übernimmt einen Explorer.'],['Disgusting Fish','Begrenzte Ressource zum Brechen der Kontrolle.'],['Blink Nova','Raid-Schaden, der mit Entfernung sinkt.'],['Mighty Thud','Mehrere Soak-Sprünge.'],['Aura of Unity','Heroisch/Mythisch: nahe Explorer erhalten hohe Schadensreduktion.']],
     roles:{tank:['Explorer in getrennten Sektoren halten.'],healer:['Soaks und Fisch-Träger absichern.'],dps:['Fisch- und Kill-Reihenfolge strikt einhalten.']},
     difficulty:{heroic:'Aura of Unity erzwingt saubere Bosspositionen.',mythic:'Zusätzliche Rauminteraktionen bestrafen unkontrollierte Bewegung.'},
-    arena:{boss:[50,28],boss2:[27,58],boss3:[73,58],tank:[50,17],ranged:[50,84],danger:[50,59],label:'Fisch-/Kistenkorridor',path:[[50,82],[50,67],[42,54],[34,42],[50,30]]},
-    positioning:['Explorer als Dreieck stellen.','Zentralen Korridor frei halten.','Ranged hinten mittig positionieren.','Knockbacks nicht in andere Bosssektoren legen.'],
     sources:[['Wowhead',wowhead('lost-explorers')],['Warcraft Logs',warcraftLogs]]
   },
   {
@@ -74,20 +66,16 @@ const bosses = [
     abilities:[['Venomous Surge','Erzeugt Globs und Viscous Cysts.'],['Viscous Cyst','Kontakt stößt Spieler weg.'],['Howling Maelstrom','Wind schiebt Spieler.'],['Dig In','Erhöhte Schadensaufnahme des Bosses.']],
     roles:{tank:['Boss mit Blick auf sichere Knockback-Zonen positionieren.'],healer:['Bewegungsphasen vorheilen.'],dps:['Offensive CDs für Dig In bündeln.']},
     difficulty:{heroic:'Mehr Raumgefahren machen falsche Landungen tödlicher.',mythic:'Persönliche Bewegungswege werden zu festen Assignments.'},
-    arena:{boss:[50,44],tank:[50,34],melee:[50,54],ranged:[72,72],danger:[25,50],label:'Knockback-Zone',path:[[72,72],[62,62],[52,52],[42,42],[34,34]]},
-    positioning:['Boss leicht versetzt zentral halten.','Raid mit dem Rücken zur geplanten sicheren Fläche.','Cysts nicht in Laufwege legen.','Vor Dig In Position stabilisieren.'],
     sources:[['Wowhead',wowhead('sszorak')],['Warcraft Logs',warcraftLogs]]
   },
   {
     id:'twin-fangs', order:6, name:'The Twin Fangs', room:'Pit of Fangs', type:'2 Ziele / Stack-Management',
-    summary:'Vexhul und Ithraz bauen Eternal Venom auf Spielern auf. Bei 9 Stapeln stirbt der Spieler; Ravenous Feast kann Stapel entfernen.',
+    summary:'Vexhul und Ithraz bauen Eternal Venom auf Spielern auf. Bei 7 Anwendungen stirbt der Spieler; Ravenous Feast kann Stapel entfernen.',
     firstPull:['Eternal-Venom-Stapel beobachten.','Ravenous Feast gezielt zum Abbauen nutzen.','Caustic Deluge meiden.','Adds schnell kontrollieren.'],
     phases:[['Zyklus','Bossfähigkeiten bis 100 Energie.'],['100 Energie','Vile Flood und Sanguine Storm erhöhen Raum- und Raid-Druck.']],
-    abilities:[['Eternal Venom','Persönlicher Stapel; 9 Anwendungen sind tödlich.'],['Ravenous Feast','Soak zum Abbauen von Stapeln.'],['Caustic Deluge','Globules erhöhen Eternal Venom.'],['Venomous Emergence','Beschwört Adds.']],
+    abilities:[['Eternal Venom','Persönlicher Stapel; 7 Anwendungen sind tödlich.'],['Ravenous Feast','Soak zum Abbauen von Stapeln.'],['Caustic Deluge','Globules erhöhen Eternal Venom.'],['Venomous Emergence','Beschwört Adds.']],
     roles:{tank:['Bosse kontrolliert stellen und Soak-Raum freihalten.'],healer:['Hohe Stack-Spieler beobachten.'],dps:['Stacks aktiv managen und Adds priorisieren.']},
     difficulty:{heroic:'Stack- und Raumfehler werden schwerer zu kompensieren.',mythic:'Feste Soakgruppen und ein klarer Stack-Plan sind Pflicht.'},
-    arena:{boss:[35,40],boss2:[65,40],tank:[50,26],melee:[50,50],ranged:[50,78],danger:[50,62],label:'Ravenous Feast',path:[[50,80],[50,68],[42,60],[50,52],[58,60]]},
-    positioning:['Bosse links/rechts mit freier Mitte stellen.','Soak-Zone zentral vorbereiten.','Ranged breit im hinteren Drittel.','Adds von außen nach innen abfangen.'],
     sources:[['Wowhead',wowhead('twin-fangs')],['Warcraft Logs',warcraftLogs]]
   },
   {
@@ -98,8 +86,6 @@ const bosses = [
     abilities:[['Fangs of the Crucible','Hoher Raid-Schaden.'],['Coalesced Venom','Giftglobule mit Folgewirkung.'],['Venom Rupture','Raid-DoT nach Globule-Zerstörung.'],['Sever','Tankmechanik zum Bereinigen von Raumobjekten.'],['Soul Sever','Spätere Tank-/Seelenmechanik.']],
     roles:{tank:['Sever/Soul Sever bewusst einsetzen.'],healer:['Raid-Schadensfenster über Phasen verteilen.'],dps:['Globules nicht planlos zerstören.']},
     difficulty:{heroic:'Globule-Management wird strenger.',mythic:'Raumobjekte, Tankhits und finale Zielkontrolle müssen exakt zusammenspielen.'},
-    arena:{boss:[50,36],tank:[50,24],melee:[50,46],ranged:[50,78],danger:[26,62],label:'Coalesced Venom',path:[[50,78],[40,68],[30,60],[40,50],[50,42]]},
-    positioning:['Boss im oberen Drittel halten.','Globules seitlich sammeln.','Ranged mittig/hinten.','Raum schrittweise und kontrolliert bereinigen.'],
     sources:[['Wowhead',wowhead('coiled-altar')],['Warcraft Logs',warcraftLogs]]
   },
   {
@@ -110,8 +96,6 @@ const bosses = [
     abilities:[['Caustic Waves','Venomwellen verändern sichere Flächen.'],["Devourer's Spawn",'Eier, die gefährliche Adds hervorbringen.'],['Spectral Coils','Soak-Mechanik.'],['Rage of the Shackled','Großer Übergang.'],['Venomous Heart','Burstfenster.'],['Demolish','Zerstört sichere Arenabereiche.']],
     roles:{tank:['Boss/Adds mit Blick auf verbleibenden Raum führen.'],healer:['CDs für Übergänge und späte Raumknappheit staffeln.'],dps:['Adds/Eier nach Priorität spielen und Venomous Heart bursten.']},
     difficulty:{heroic:'Ungeplante Hatchings erhöhen den Heilbedarf dauerhaft.',mythic:'Eierbewegung und persönliche Abstände werden zu festen Assignments.'},
-    arena:{boss:[50,28],tank:[50,18],melee:[50,38],ranged:[50,72],danger:[50,54],label:'Venom / Eier',path:[[50,78],[60,68],[68,54],[62,42],[52,34]]},
-    positioning:['Boss im oberen Drittel halten.','Eier-/Venom-Flächen kontrolliert an Außenbereichen spielen.','Ranged im sicheren hinteren Segment.','Finale Raum sektorweise aufgeben.'],
     sources:[['Blizzard',blizzard],['Wowhead',wowhead('ulatek')],['Warcraft Logs',warcraftLogs]]
   }
 ];
@@ -125,23 +109,30 @@ const currentSlug = () => {
 };
 const bossHref = (id) => `${BASE_PATH}/${id}`;
 
+const criticalAbilities = new Set([
+  'Soulcoil Well','Soulcoil Rite','Ritual of Awakening','Uncoiling',
+  "Ula'tek's Dominance",'Contaminate','Vitriolic Stasis','Helical Toxins',
+  'Imbibe','Malignant Burst','Disgusting Fish','Mighty Thud','Aura of Unity',
+  'Howling Maelstrom','Eternal Venom','Ravenous Feast','Fangs of the Crucible','Sever','Soul Sever',
+  'Caustic Waves','Spectral Coils','Rage of the Shackled','Demolish'
+]);
+const routineAbilities = new Set(['Dig In','Venomous Heart','Blighted Blood','Infusion']);
+
+function abilitySeverity(name) {
+  if (criticalAbilities.has(name)) return {key:'critical',label:'KRITISCH',Icon:Skull};
+  if (routineAbilities.has(name)) return {key:'routine',label:'ROUTINE',Icon:CheckCircle2};
+  return {key:'warning',label:'ACHTUNG',Icon:TriangleAlert};
+}
+
 function Ability({item}) {
   const name = item?.[0] || 'Unbekannte Fähigkeit';
   const note = item?.[1] || '';
-  return <div className="ability" title={`Deutsch: Live-Lokalisierung noch nicht final verifiziert\n${note}`}><div><strong>{name}</strong><span className="lang">BOSS-FÄHIGKEIT</span></div><p>{note}</p></div>;
-}
-
-function Arena({data={}}) {
-  const point = (xy, cls, text) => Array.isArray(xy) ? <div className={`arena-point ${cls}`} style={{left:`${xy[0]}%`,top:`${xy[1]}%`}}><span>{text}</span></div> : null;
-  const danger = Array.isArray(data.danger) ? data.danger : [50,50];
-  const path = safeArray(data.path);
-  return <div className="arena">
-    <div className="arena-ring"/><div className="arena-gridlines"/>
-    <div className="arena-danger" style={{left:`${danger[0]}%`,top:`${danger[1]}%`}}><span>{data.label || 'Mechanikzone'}</span></div>
-    {path.slice(0,-1).map((p,i)=>{const n=path[i+1]; if(!Array.isArray(p)||!Array.isArray(n)) return null; const dx=n[0]-p[0],dy=n[1]-p[1],len=Math.hypot(dx,dy),angle=Math.atan2(dy,dx)*180/Math.PI; return <span key={`line-${i}`} className="route-line" style={{left:`${p[0]}%`,top:`${p[1]}%`,width:`${len}%`,transform:`rotate(${angle}deg)`}}/>;})}
-    {path.map((p,i)=>Array.isArray(p)?<span key={`dot-${i}`} className="route-dot" style={{left:`${p[0]}%`,top:`${p[1]}%`}}>{i+1}</span>:null)}
-    {point(data.boss,'boss','Boss')}{point(data.boss2,'boss second','Boss 2')}{point(data.boss3,'boss third','Boss 3')}{point(data.tank,'tank','T')}{point(data.melee,'melee','M')}{point(data.ranged,'ranged','R')}
-  </div>;
+  const severity = abilitySeverity(name);
+  const Icon = severity.Icon;
+  return <article className={`ability ability-${severity.key}`} title={`Deutsch: Live-Lokalisierung noch nicht final verifiziert\n${note}`}>
+    <div className="ability-icon" aria-hidden="true"><Icon size={22}/></div>
+    <div className="ability-copy"><div className="ability-title"><strong>{name}</strong><span className="severity-badge">{severity.label}</span></div><p>{note}</p></div>
+  </article>;
 }
 
 function QAStatus(){return <section className="qa-strip">
@@ -171,11 +162,8 @@ function App(){
         </div>
         <section className="card role-card"><div className="role-head"><h3><RoleIcon/> Deine Aufgabe: {roleLabel}</h3><div className="role-tabs">{Object.entries(roles).map(([key,[label,Icon]])=><button key={key} className={role===key?'active':''} onClick={()=>setRole(key)}><Icon size={16}/>{label}</button>)}</div></div><ul className="role-list">{roleItems.map((x,i)=><li key={`${boss.id}-${role}-${i}`}>{x}</li>)}</ul></section>
         <section className="difficulty"><span>{difficulty==='heroic'?'Heroisch':'Mythisch'}</span><p>{boss.difficulty?.[difficulty] || 'Keine zusätzliche Änderung dokumentiert.'}</p></section>
-        <section className="card"><h3>Fähigkeiten</h3><div className="abilities">{safeArray(boss.abilities).map((x,i)=><Ability key={`${boss.id}-ability-${i}`} item={x}/>)}</div></section>
-        <div className="grid two bottom-grid">
-          <section className="card position-card"><h3><Map/> Raum & Positionierung</h3><p className="muted">Schematische Raid-Aufstellung. T = Tank, M = Melee, R = Ranged.</p><Arena data={boss.arena}/><div className="position-notes">{safeArray(boss.positioning).map((x,i)=><div key={`${boss.id}-pos-${i}`}><span>{i+1}</span><p>{x}</p></div>)}</div><p className="log-note">Warcraft Logs dient als Plausibilitätsprüfung für Castfolgen und reale Pulls; die Grafik ist bewusst kein 1:1-Klon einer einzelnen Gildenstrategie.</p></section>
-          <section className="card sources"><h3>Quellen & QA</h3><p className="muted">Blizzard/Wowhead plus Warcraft Logs werden gegengeprüft. Mythic Trap wird zweimal geprüft, sobald Venomous-Abyss-Guides öffentlich verfügbar sind.</p>{safeArray(boss.sources).map((source,i)=>{const name=source?.[0] || 'Quelle'; const url=source?.[1] || '#'; return <a href={url} key={`${boss.id}-source-${i}`} target="_blank" rel="noreferrer"><ExternalLink size={15}/>{name}</a>})}<a href={mythicTrap} target="_blank" rel="noreferrer" className="pending-source"><ExternalLink size={15}/>Mythic Trap · ausstehend</a></section>
-        </div>
+        <section className="card abilities-card"><div className="abilities-head"><h3>Fähigkeiten</h3><div className="severity-legend"><span className="legend-critical">Kritisch</span><span className="legend-warning">Achtung</span><span className="legend-routine">Routine</span></div></div><div className="abilities">{safeArray(boss.abilities).map((x,i)=><Ability key={`${boss.id}-ability-${i}`} item={x}/>)}</div></section>
+        <section className="card sources sources-full"><h3>Quellen & QA</h3><p className="muted">Blizzard/Wowhead plus Warcraft Logs werden gegengeprüft. Raum- und Positionsgrafiken bleiben ausgeblendet, bis belastbare Originalbilder verfügbar sind. Mythic Trap wird zweimal geprüft, sobald Venomous-Abyss-Guides öffentlich verfügbar sind.</p>{safeArray(boss.sources).map((source,i)=>{const name=source?.[0] || 'Quelle'; const url=source?.[1] || '#'; return <a href={url} key={`${boss.id}-source-${i}`} target="_blank" rel="noreferrer"><ExternalLink size={15}/>{name}</a>})}<a href={mythicTrap} target="_blank" rel="noreferrer" className="pending-source"><ExternalLink size={15}/>Mythic Trap · ausstehend</a></section>
       </main>
     </div>
   </div>;
