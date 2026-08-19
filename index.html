@@ -7,10 +7,81 @@
     <meta name="description" content="SOBIX Raid Guide – The Venomous Abyss, Patch 12.1" />
     <title>SOBIX Raid Guide · The Venomous Abyss</title>
     <link rel="stylesheet" href="/src/enhance.css" />
+    <link rel="stylesheet" href="/src/landing.css" />
   </head>
   <body>
     <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-    <script type="module" src="/src/enhance.js"></script>
+    <script type="module">
+      const BASE_PATH = '/sobix-raidguide';
+      const bosses = [
+        ['nekzali', 1, "Nek'zali the Soulcoiler", '2 Phasen + Intermission'],
+        ['sentinels', 2, 'Entombed Sentinels', '2 Ziele + Intermission'],
+        ['vashnik', 3, 'Vashnik the Malignant', 'Fountain-Rotation'],
+        ['lost-explorers', 4, 'The Lost Explorers', '3 Ziele / Ressourcenmechanik'],
+        ['sszorak', 5, 'Sszorak', 'Knockbacks / Burstfenster'],
+        ['twin-fangs', 6, 'The Twin Fangs', '2 Ziele / Stack-Management'],
+        ['coiled-altar', 7, 'The Coiled Altar', '3 Phasen'],
+        ['ulatek', 8, "Ula'tek", '3 Phasen + Intermission']
+      ];
+
+      const path = window.location.pathname.replace(/\/+$/, '');
+      const relative = path.startsWith(BASE_PATH) ? path.slice(BASE_PATH.length) : path;
+      const slug = relative.replace(/^\/+|\/+$/g, '');
+      const isBoss = bosses.some(([id]) => id === slug);
+
+      if (isBoss) {
+        import('./src/main.jsx');
+        import('./src/enhance.js');
+      } else {
+        document.body.classList.add('landing-page');
+        const bossLinks = bosses.map(([id, order, name, type]) => `
+          <a class="landing-boss" href="${BASE_PATH}/${id}">
+            <span>${order}</span>
+            <div><strong>${name}</strong><small>${type}</small></div>
+          </a>`).join('');
+
+        document.getElementById('root').innerHTML = `
+          <div class="landing-shell">
+            <header class="landing-top">
+              <div>
+                <span class="landing-eyebrow">MIDNIGHT · PATCH 12.1 · SEASON 2</span>
+                <h1 class="landing-title">The Venomous Abyss</h1>
+                <p class="landing-subtitle">Raidguide für den ersten Pull. Ein schnelles und kurzes Nachschlagewerk für Raider, die vor dem ersten Versuch wissen möchten, was wirklich wichtig ist.</p>
+              </div>
+              <div class="landing-status"><span class="landing-dot"></span> Guide online · Patch 12.1</div>
+            </header>
+
+            <div class="landing-layout">
+              <aside class="landing-sidebar">
+                <div class="landing-side-title">Die 8 Bosse</div>
+                ${bossLinks}
+              </aside>
+
+              <main class="landing-main">
+                <section class="landing-hero">
+                  <div class="landing-image-wrap">
+                    <img class="landing-image" src="https://wow.zamimg.com/uploads/screenshots/normal/1289051.jpg" alt="Ula'tek aus The Venomous Abyss" />
+                    <a class="landing-source" href="https://www.wowhead.com/news/new-creature-models-datamined-on-patch-12-1-serpents-hydras-and-vipers-381934" target="_blank" rel="noreferrer">Bildquelle: Wowhead · Patch 12.1</a>
+                    <div class="landing-overlay">
+                      <span class="landing-kicker">Der neue 8-Boss-Raid</span>
+                      <h2>Bereit für den ersten Pull.</h2>
+                      <p>Von Nek'zali bis Ula'tek: Jeder Boss besitzt eine eigene Unterseite mit Pull-Grundlagen, Kampfablauf, Rollenaufgaben, Fähigkeiten, Heroisch-/Mythisch-Unterschieden sowie Raum- und Positionierungshinweisen.</p>
+                    </div>
+                  </div>
+                </section>
+
+                <section class="landing-info">
+                  <h3>Wähle links einen Boss aus</h3>
+                  <p>The Venomous Abyss besteht aus acht Encountern. Die Bossliste links führt dich direkt auf die jeweilige Unterseite. Dort bekommst du bewusst keine endlose Textwand, sondern zuerst die Informationen, die du für deinen ersten Pull brauchst: Was passiert im Kampf, was ist für deine Rolle wichtig und welche Mechaniken dürfen nicht schiefgehen.</p>
+                  <div class="landing-cta">
+                    <a href="${BASE_PATH}/nekzali">Mit Boss 1 beginnen →</a>
+                    <a href="${BASE_PATH}/ulatek">Direkt zu Ula'tek →</a>
+                  </div>
+                </section>
+              </main>
+            </div>
+          </div>`;
+      }
+    </script>
   </body>
 </html>
