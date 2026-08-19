@@ -1,27 +1,45 @@
 const BLIZZARD_RAID = 'https://worldofwarcraft.blizzard.com/de-de/news/24294062/fluch-von-ulatek-der-giftige-abgrund-schlachtzug-geht-am-19-august-live';
 const MYTHIC_TRAP = 'https://www.mythictrap.com/';
-const WARCRAFT_LOGS = 'https://www.warcraftlogs.com/';
+const WARCRAFT_LOGS = 'https://www.warcraftlogs.com/zone/rankings/54';
+const WOWHEAD_RAID_MAPS = 'https://www.wowhead.com/news/updated-raid-maps-for-the-venomous-abyss-on-patch-12-1-ptr-382066';
 
-const positionHints = {
-  "Nek'zali the Soulcoiler": 'Soulcoil Well als Sperrzone behandeln. Boss und Adds außen führen; Ranged so verteilen, dass einlaufende Adds früh erkannt werden.',
-  'Entombed Sentinels': 'Zwei feste Raumhälften spielen und die Sentinels klar getrennt halten. Nur zur vorgesehenen Intermission kontrolliert zusammenführen.',
-  'Vashnik the Malignant': 'Tankposition steuert die nächsten Fountains. Die Mitte für Living-Venom-Laufwege und schnelle Zielwechsel freihalten.',
-  'The Lost Explorers': 'Drei Ziele mit klaren Abständen spielen. Mitte als Transit- und Ressourcenraum frei halten; Fisch-Assignments nicht kreuzen.',
-  'Sszorak': 'Immer mit sicherer Landefläche im Rücken stehen. Vor Wind- und Knockback-Mechaniken den eigenen Rückstoßweg prüfen.',
-  'The Twin Fangs': 'Bosse kontrolliert positionieren und einen klaren Soak-Korridor für Ravenous Feast freihalten. Hohe Venom-Stapel früh in die Bewegung einplanen.',
-  'The Coiled Altar': 'Coalesced Venom auf einer geplanten Raumseite sammeln. Tanklinie so wählen, dass Sever/Soul Sever kontrolliert Raum bereinigen kann.',
-  "Ula'tek": 'Sicheren Raum wie eine Ressource behandeln. Eier, Venom und Demolish so spielen, dass die finale Arena möglichst lange nutzbar bleibt.'
+const bossSources = {
+  "Nek'zali the Soulcoiler": {
+    image: 'https://wow.zamimg.com/images/wow/journal/ui-ej-boss-priestess.png',
+    wowhead: 'https://www.wowhead.com/ptr/guide/midnight/raids/venomous-abyss-nekzali-the-soulcoiler-boss-strategy-abilities'
+  },
+  'Entombed Sentinels': {
+    image: 'https://wow.zamimg.com/images/wow/journal/ui-ej-boss-golems.png',
+    wowhead: 'https://www.wowhead.com/ptr/guide/midnight/raids/venomous-abyss-entombed-sentinels-boss-strategy-abilities'
+  },
+  'Vashnik the Malignant': {
+    image: 'https://wow.zamimg.com/images/wow/journal/ui-ej-boss-alchemist.png',
+    wowhead: 'https://www.wowhead.com/ptr/guide/midnight/raids/venomous-abyss-vashnik-the-malignant-boss-strategy-abilities'
+  },
+  'The Lost Explorers': {
+    image: 'https://wow.zamimg.com/images/wow/journal/ui-ej-boss-tortollans.png',
+    wowhead: 'https://www.wowhead.com/ptr/guide/midnight/raids/venomous-abyss-lost-explorers-boss-strategy-abilities'
+  },
+  'Sszorak': {
+    image: 'https://wow.zamimg.com/images/wow/journal/ui-ej-boss-brute.png',
+    wowhead: 'https://www.wowhead.com/ptr/guide/midnight/raids/venomous-abyss-sszorak-boss-strategy-abilities'
+  },
+  'The Twin Fangs': {
+    image: 'https://wow.zamimg.com/images/wow/journal/ui-ej-boss-twins.png',
+    wowhead: 'https://www.wowhead.com/ptr/guide/midnight/raids/venomous-abyss-twin-fangs-boss-strategy-abilities'
+  },
+  'The Coiled Altar': {
+    image: 'https://wow.zamimg.com/images/wow/journal/ui-ej-boss-zuljanmalacrass.png',
+    wowhead: 'https://www.wowhead.com/ptr/guide/midnight/raids/venomous-abyss-coiled-altar-boss-strategy-abilities'
+  },
+  "Ula'tek": {
+    image: 'https://wow.zamimg.com/images/wow/journal/ui-ej-boss-ulatek.png',
+    wowhead: 'https://www.wowhead.com/ptr/guide/midnight/raids/venomous-abyss-ulatek-boss-strategy-abilities'
+  }
 };
 
 function initials(name = '') {
-  return name
-    .replace(/^The\s+/i, '')
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map(part => part[0])
-    .join('')
-    .toUpperCase();
+  return name.replace(/^The\s+/i, '').split(/\s+/).filter(Boolean).slice(0, 2).map(part => part[0]).join('').toUpperCase();
 }
 
 function ensurePortrait(heroCopy, bossName) {
@@ -52,6 +70,45 @@ function ensureSourceLink(container, href, label) {
   link.rel = 'noreferrer';
   link.innerHTML = `↗ ${label}`;
   container.append(link);
+}
+
+function buildTrustedPositioning(roomCard, bossName) {
+  const source = bossSources[bossName];
+  if (!source) return;
+
+  roomCard.classList.add('arena-card', 'trusted-positioning');
+  roomCard.querySelector('.arena')?.remove();
+  roomCard.querySelector('.position-notes')?.remove();
+  roomCard.querySelector('.log-note')?.remove();
+  roomCard.querySelector('.arena-hint')?.remove();
+  roomCard.querySelector('.wcl-badge')?.remove();
+
+  const oldMuted = roomCard.querySelector('.muted');
+  if (oldMuted) oldMuted.remove();
+
+  let panel = roomCard.querySelector('.position-source-panel');
+  if (!panel) {
+    panel = document.createElement('div');
+    panel.className = 'position-source-panel';
+    roomCard.append(panel);
+  }
+
+  panel.innerHTML = `
+    <a class="position-boss-visual" href="${source.wowhead}" target="_blank" rel="noreferrer">
+      <img src="${source.image}" alt="${bossName} – Wowhead Dungeon Journal" loading="lazy" />
+      <span><strong>${bossName}</strong><small>Original Dungeon-Journal-Bild · Wowhead</small></span>
+    </a>
+    <div class="position-source-copy">
+      <strong>Positionierung wird nur noch aus echten Quellen übernommen.</strong>
+      <p>Keine selbstgezeichnete Arena und keine geratenen Marker mehr. Für Laufwege, Bosspositionen und reale Raidaufstellungen werden Warcraft-Logs-Pulls beziehungsweise Replays genutzt; Wowhead dient als zweiter Mechanik- und Raumabgleich.</p>
+    </div>
+    <div class="position-actions">
+      <a href="${WARCRAFT_LOGS}" target="_blank" rel="noreferrer">Warcraft Logs · The Venomous Abyss</a>
+      <a href="${source.wowhead}" target="_blank" rel="noreferrer">Wowhead · ${bossName}</a>
+      <a href="${WOWHEAD_RAID_MAPS}" target="_blank" rel="noreferrer">Wowhead · echte Raidkarten</a>
+    </div>
+    <p class="position-source-note">Hinweis: Eine konkrete Aufstellung wird erst übernommen, wenn sie sich in realen Logs/Replays als belastbar zeigt. Einzelne Gildenstrategien werden nicht als allgemeingültig ausgegeben.</p>
+  `;
 }
 
 function decorate() {
@@ -86,15 +143,8 @@ function decorate() {
   document.querySelectorAll('.segmented button.active, .role-tabs button.active, .boss-btn.active').forEach(el => el.classList.add('gold-active'));
 
   const cards = [...document.querySelectorAll('.card')];
-  const pull = cards.find(card => card.querySelector('h3')?.textContent?.includes('Erster Pull'));
-  if (pull) {
-    pull.classList.add('pull-card');
-    const heading = pull.querySelector('h3');
-    if (heading) {
-      const svg = heading.querySelector('svg')?.outerHTML || '';
-      heading.innerHTML = `${svg}<span>Vor dem Pull wichtig:</span>`;
-    }
-  }
+  const pull = cards.find(card => card.querySelector('h3')?.textContent?.includes('Vor dem Pull') || card.querySelector('h3')?.textContent?.includes('Erster Pull'));
+  if (pull) pull.classList.add('pull-card');
 
   const flow = cards.find(card => card.querySelector('h3')?.textContent?.includes('Kampfablauf'));
   if (flow) {
@@ -117,23 +167,7 @@ function decorate() {
   });
 
   const roomCard = cards.find(card => card.querySelector('h3')?.textContent?.includes('Raum & Positionierung'));
-  if (roomCard && bossName) {
-    roomCard.classList.add('arena-card');
-    const heading = roomCard.querySelector('h3');
-    if (heading && !roomCard.querySelector('.wcl-badge')) {
-      const badge = document.createElement('span');
-      badge.className = 'wcl-badge';
-      badge.textContent = 'Warcraft Logs Abgleich';
-      heading.after(badge);
-    }
-    let hint = roomCard.querySelector('.arena-hint');
-    if (!hint) {
-      hint = document.createElement('p');
-      hint.className = 'arena-hint';
-      roomCard.append(hint);
-    }
-    hint.textContent = positionHints[bossName] || 'Positionsschema wird mit aktuellen Logs und Guidequellen abgeglichen.';
-  }
+  if (roomCard && bossName) buildTrustedPositioning(roomCard, bossName);
 
   const sources = document.querySelector('.sources');
   if (sources) {
