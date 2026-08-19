@@ -1,9 +1,10 @@
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { Shield, Sword, HeartPulse, ExternalLink, CheckCircle2, CircleDot, Map, BookOpen } from 'lucide-react';
 import './styles.css';
 import './visual-polish.css';
 
+const BASE_PATH = '/sobix-raidguide';
 const warcraftLogs = 'https://www.warcraftlogs.com/zone/rankings/54';
 const blizzard = 'https://worldofwarcraft.blizzard.com/en-gb/news/24294062/curse-of-ulatek-the-venomous-abyss-raid-goes-live-19-august';
 const mythicTrap = 'https://www.mythictrap.com/en';
@@ -117,6 +118,12 @@ const bosses = [
 
 const roles = { tank:['Tank',Shield], healer:['Heiler',HeartPulse], dps:['DPS',Sword] };
 const safeArray = (value) => Array.isArray(value) ? value : [];
+const currentSlug = () => {
+  const path = window.location.pathname.replace(/\/+$/, '');
+  const relative = path.startsWith(BASE_PATH) ? path.slice(BASE_PATH.length) : path;
+  return relative.replace(/^\/+|\/+$/g, '') || 'nekzali';
+};
+const bossHref = (id) => `${BASE_PATH}/${id}`;
 
 function Ability({item}) {
   const name = item?.[0] || 'Unbekannte Fähigkeit';
@@ -145,29 +152,29 @@ function QAStatus(){return <section className="qa-strip">
 </section>}
 
 function App(){
-  const [selected,setSelected]=useState('nekzali');
   const [difficulty,setDifficulty]=useState('heroic');
   const [role,setRole]=useState('dps');
-  const boss=useMemo(()=>bosses.find(b=>b.id===selected) || bosses[0],[selected]);
+  const selected=currentSlug();
+  const boss=bosses.find(b=>b.id===selected) || bosses[0];
   const [roleLabel,RoleIcon]=roles[role] || roles.dps;
   const roleItems=safeArray(boss.roles?.[role] || baseRoles[role]);
   return <div className="app">
     <header className="topbar"><div><span className="eyebrow">MIDNIGHT · PATCH 12.1</span><h1>The Venomous Abyss</h1><p>Raidguide für den ersten Pull. Ein schnelles und kurzes Nachschlagewerk für Raider.</p></div><div className="status"><span className="online-dot"/> Online · aktualisiert {updated}</div></header>
     <QAStatus/>
     <div className="layout">
-      <aside className="sidebar"><div className="side-title">Bosse</div>{bosses.map(b=><button key={b.id} className={selected===b.id?'boss-btn active':'boss-btn'} onClick={()=>setSelected(b.id)}><span>{b.order}</span><div><strong>{b.name}</strong><small>{b.type}</small></div></button>)}</aside>
+      <aside className="sidebar"><div className="side-title">Bosse</div>{bosses.map(b=><a key={b.id} href={bossHref(b.id)} className={boss.id===b.id?'boss-btn active':'boss-btn'}><span>{b.order}</span><div><strong>{b.name}</strong><small>{b.type}</small></div></a>)}</aside>
       <main className="content">
         <section className="hero"><div><div className="crumb">Boss {boss.order} / 8 · {boss.room}</div><h2>{boss.name}</h2><p className="boss-summary">{boss.summary}</p></div><div className="controls"><div className="segmented"><button className={difficulty==='heroic'?'active':''} onClick={()=>setDifficulty('heroic')}>Heroisch</button><button className={difficulty==='mythic'?'active':''} onClick={()=>setDifficulty('mythic')}>Mythisch</button></div></div></section>
-        <div className="grid two">
+        <div className="grid two boss-overview-grid">
           <section className="card pull-card"><h3><BookOpen/> Vor dem Pull wichtig:</h3><ol className="steps">{safeArray(boss.firstPull).map((x,i)=><li key={`${boss.id}-pull-${i}`}><span>{i+1}</span>{x}</li>)}</ol></section>
-          <section className="card flow-card"><h3><CircleDot/> Kampfablauf</h3><div className="timeline">{safeArray(boss.phases).map(([p,t],i)=><div key={`${boss.id}-phase-${i}`}><span className="phase-index">{i+1}</span><strong>{p}</strong><p>{t}</p></div>)}</div></section>
+          <section className="card flow-card"><h3><CircleDot/> Kampfablauf</h3><div className="timeline">{safeArray(boss.phases).map((phase,i)=>{const p=phase?.[0] || `Phase ${i+1}`; const t=phase?.[1] || ''; return <div key={`${boss.id}-phase-${i}`}><span className="phase-index">{i+1}</span><strong>{p}</strong><p>{t}</p></div>})}</div></section>
         </div>
         <section className="card role-card"><div className="role-head"><h3><RoleIcon/> Deine Aufgabe: {roleLabel}</h3><div className="role-tabs">{Object.entries(roles).map(([key,[label,Icon]])=><button key={key} className={role===key?'active':''} onClick={()=>setRole(key)}><Icon size={16}/>{label}</button>)}</div></div><ul className="role-list">{roleItems.map((x,i)=><li key={`${boss.id}-${role}-${i}`}>{x}</li>)}</ul></section>
         <section className="difficulty"><span>{difficulty==='heroic'?'Heroisch':'Mythisch'}</span><p>{boss.difficulty?.[difficulty] || 'Keine zusätzliche Änderung dokumentiert.'}</p></section>
         <section className="card"><h3>Fähigkeiten</h3><div className="abilities">{safeArray(boss.abilities).map((x,i)=><Ability key={`${boss.id}-ability-${i}`} item={x}/>)}</div></section>
         <div className="grid two bottom-grid">
           <section className="card position-card"><h3><Map/> Raum & Positionierung</h3><p className="muted">Schematische Raid-Aufstellung. T = Tank, M = Melee, R = Ranged.</p><Arena data={boss.arena}/><div className="position-notes">{safeArray(boss.positioning).map((x,i)=><div key={`${boss.id}-pos-${i}`}><span>{i+1}</span><p>{x}</p></div>)}</div><p className="log-note">Warcraft Logs dient als Plausibilitätsprüfung für Castfolgen und reale Pulls; die Grafik ist bewusst kein 1:1-Klon einer einzelnen Gildenstrategie.</p></section>
-          <section className="card sources"><h3>Quellen & QA</h3><p className="muted">Blizzard/Wowhead plus Warcraft Logs werden gegengeprüft. Mythic Trap wird zweimal geprüft, sobald Venomous-Abyss-Guides öffentlich verfügbar sind.</p>{safeArray(boss.sources).map(([name,url],i)=><a href={url} key={`${boss.id}-source-${i}`} target="_blank" rel="noreferrer"><ExternalLink size={15}/>{name}</a>)}<a href={mythicTrap} target="_blank" rel="noreferrer" className="pending-source"><ExternalLink size={15}/>Mythic Trap · ausstehend</a></section>
+          <section className="card sources"><h3>Quellen & QA</h3><p className="muted">Blizzard/Wowhead plus Warcraft Logs werden gegengeprüft. Mythic Trap wird zweimal geprüft, sobald Venomous-Abyss-Guides öffentlich verfügbar sind.</p>{safeArray(boss.sources).map((source,i)=>{const name=source?.[0] || 'Quelle'; const url=source?.[1] || '#'; return <a href={url} key={`${boss.id}-source-${i}`} target="_blank" rel="noreferrer"><ExternalLink size={15}/>{name}</a>})}<a href={mythicTrap} target="_blank" rel="noreferrer" className="pending-source"><ExternalLink size={15}/>Mythic Trap · ausstehend</a></section>
         </div>
       </main>
     </div>
